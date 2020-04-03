@@ -1,0 +1,7 @@
+dba.configureInstance('ted@clusternode2:3306',{password:'ted',interactive:false,restart:true});
+dba.configureInstance('ted@clusternode3:3306',{password:'ted',interactive:false,restart:true});
+cluster=dba.createCluster("mycluster");
+cluster.addInstance('ted@clusternode2:3306',{password:'ted',recoveryMethod:'clone'});
+cluster.addInstance('ted@clusternode3:3306',{password:'ted',recoveryMethod:'clone'});
+cluster.status();
+

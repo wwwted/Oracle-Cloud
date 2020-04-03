@@ -1,0 +1,56 @@
+
+ReplicaSets
+==============
+
+1) Create the environment: ./create_servers_oci.sh cluster 3
+
+For manual setup's setup, you need to have 3 MySQL Servers and;
+- Set unique server_id for all MySQL instances
+- Make sure IP's are resolvable (via DNS or /etc/hosts)
+
+Nodes (Set hostname like below and you can copy commands direcly):
+- clusternode1
+- clusternode2
+- clusternode3
+
+2) MySQL ReplicaSet Demo
+Log-in into clusternode1: ssh -i/home/ted/OCI/id_rsa opc@ip
+. ./setenv
+
+Start mysql shell:
+mysqlsh
+\connect ted:ted@clusternode1:3306
+
+\help ReplicaSet
+\help dba.configureReplicaSetInstance
+
+dba.configureReplicaSetInstance('ted@clusternode1:3306');
+dba.configureReplicaSetInstance('ted:ted@clusternode2:3306',{interactive:false,restart:true});
+dba.configureReplicaSetInstance('ted:ted@clusternode3:3306',{interactive:false,restart:true});
+
+rs=dba.createReplicaSet("MyReplicaSet");
+rs.status();
+rs.addInstance('ted@clusternode2:3306');
+rs.status();
+rs.addInstance('ted@clusternode3:3306',{recoveryMethod:'clone'});
+rs.status();
+
+# rs.removeInstance('ted@clusternode3:3306');
+
+Start Router:
+mysqlrouter --bootstrap ted:ted@clusternode1 --directory myrouter
+./myrouter/start.sh
+
+Look at routers connected from Shell
+rs=dba.getReplicaSet()
+rs.listRouters()
+
+To what server are we conected (run in separat window):
+watch -d -n1 'mysql -uted -pted -h127.0.0.1 -P6446 -e"select @@hostname"'
+
+Change primary/master:
+rs.setPrimaryInstance("clusternode2:3306");
+rs.status();
+rs.setPrimaryInstance("clusternode3:3306");
+rs.status();
+

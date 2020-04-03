@@ -1,0 +1,127 @@
+
+INNODB Cluster
+==============
+
+For new setup's: 
+- Set unique server_id for all MySQL instances
+(- Make sure IP's in /etc/hosts are correct) Not needed with DNS
+
+Start MySQL on all servers:
+. ./setenv
+./restart.sh
+
+1) Start mysql shell and run below
+
+Check configuration:
+dba.checkInstanceConfiguration('idcAdmin@10.0.0.17:3306',{password:'idcAdmin'});
+dba.checkInstanceConfiguration('idcAdmin@10.0.0.20:3306',{password:'idcAdmin'});
+dba.checkInstanceConfiguration('idcAdmin@10.0.0.21:3306',{password:'idcAdmin'});
+
+Configure nodes:
+dba.configureInstance('idcAdmin@10.0.0.17:3306',{password:'idcAdmin',interactive:false,restart:true});
+dba.configureInstance('idcAdmin@10.0.0.20:3306',{password:'idcAdmin',interactive:false,restart:true});
+dba.configureInstance('idcAdmin@10.0.0.21:3306',{password:'idcAdmin',interactive:false,restart:true});
+
+Create the cluster:
+\connect idcAdmin@10.0.0.17:3306
+cluster=dba.createCluster("mycluster",{exitStateAction:'ABORT_SERVER'});
+cluster.addInstance('idcAdmin@10.0.0.20:3306',{password:'idcAdmin',recoveryMethod:'clone'});
+cluster.addInstance('idcAdmin@10.0.0.21:3306',{password:'idcAdmin',recoveryMethod:'clone'});
+cluster.status();
+
+Create cluster with recomended settings (8.0.18):
+\connect idcAdmin@10.0.0.17:3306
+cluster=dba.createCluster("mycluster",{exitStateAction:'OFFLINE_MODE',autoRejoinTries:'20',consistency:'BEFORE_ON_PRIMARY_FAILOVER'});
+cluster.addInstance('idcAdmin@10.0.0.20:3306',{password:'idcAdmin',exitStateAction:'OFFLINE_MODE',autoRejoinTries:'20',consistency:'BEFORE_ON_PRIMARY_FAILOVER',recoveryMethod:'clone'});
+cluster.addInstance('idcAdmin@10.0.0.21:3306',{password:'idcAdmin',exitStateAction:'OFFLINE_MODE',autoRejoinTries:'20',consistency:'BEFORE_ON_PRIMARY_FAILOVER',recoveryMethod:'clone'});
+cluster.status();
+or
+cluster.status({extended:1});
+cluster.status({extended:1,queryMembers:1});
+
+Configuration:
+cluster.options();
+
+2) Start MySQL Router
+mysqlrouter --bootstrap idcAdmin:idcAdmin@10.0.0.17:3306 --conf-use-gr-notifications --directory myrouter
+./myrouter/start.sh
+
+3) Provisioning new dev/test env using MySQL Clone
+
+Test server created from IDc image v2:
+Public  IP Address: 130.61.117.194
+Private IP Address: 10.0.0.38 
+
+1) Create dedicated user on donor (IDc host):
+CREATE USER clone_user@'%' IDENTIFIED BY "clone_password";
+GRANT BACKUP_ADMIN ON *.* to clone_user@'%';
+GRANT SELECT ON performance_schema.* TO clone_user@'%';
+GRANT EXECUTE ON *.* to clone_user@'%';
+
+2) Provision new dev/test server:
+   (refresh.sh)
+- and run:
+INSTALL PLUGIN clone SONAME 'mysql_clone.so';
+INSTALL PLUGIN group_replication SONAME 'group_replication.so';
+set global log_error_verbosity=3;
+SET GLOBAL clone_valid_donor_list = '10.0.0.17:3306';
+CLONE INSTANCE FROM clone_user@10.0.0.17:3306 identified by 'clone_password';
+UNINSTALL PLUGIN group_replication;
+UNINSTALL PLUGIN clone;
+Done
+
+This also works:
+mysql> stop group_replication;
+mysql> CLONE LOCAL DATA DIRECTORY = '/home/opc/tmp#123';
+mysql> start group_replication;
+Start a new MySQL instance on the cloned directory:
+mysqld_safe --no-defaults --datadir=/home/opc/tmp/ --basedir=/home/opc/mysql --port=12345 --socket=/home/opc/tmp/my.sock --pid-file=/home/opc/tmp/my.pid --ledir=/home/opc/mysql/bin
+
+--- refresh script ---
+source /home/opc/setenv
+mysqladmin -uroot shutdown
+rm -fr /home/opc/mysqldata
+mkdir /home/opc/mysqldata
+mysqld --initialize-insecure --datadir=/home/opc/mysqldata --user=ted --basedir=/home/opc/mysql
+mysqld_safe --defaults-file=/home/opc/my.cnf --ledir=/home/opc/mysql/bin &
+sleep 5
+mysql -uroot -e"SET SQL_LOG_BIN=0; CREATE USER 'idcAdmin'@'%' IDENTIFIED BY 'idcAdmin'; GRANT ALL ON *.* TO 'idcAdmin'@'%' WITH GRANT OPTION";
+pgrep mysql
+mysql -uidcAdmin -pidcAdmin -e"status"
+mysql -uidcAdmin -pidcAdmin -e "select @@hostname, @@global.gtid_executed"
+--- end script ---
+
+--- howTo file ---
+. ./setenv
+./refresh.sh
+
+mysqlsh idcAdmin:idcAdmin@10.0.0.17 < createIDcDefault
+- above does not work because of restart of MySQL where script is running...?
+
+USE (works):
+- mysqlsh -e "dba.configureInstance('idcAdmin@10.0.0.17:3306',{password:'idcAdmi
+n',interactive:false,restart:true});"
+- mysqlsh idcAdmin:idcAdmin@10.0.0.17 < createIDcDefault
+--- end file ---
+
+--- createIDc file ---
+//dba.configureInstance('idcAdmin@10.0.0.17:3306',{password:'idcAdmin',interactive:false,restart:true});
+dba.configureInstance('idcAdmin@10.0.0.20:3306',{password:'idcAdmin',interactive:false,restart:true});
+dba.configureInstance('idcAdmin@10.0.0.21:3306',{password:'idcAdmin',interactive:false,restart:true});
+cluster=dba.createCluster("mycluster",{exitStateAction:'OFFLINE_MODE',autoRejoinTries:'20',consistency:'BEFORE_ON_PRIMARY_FAILOVER'});
+cluster.addInstance('idcAdmin@10.0.0.20:3306',{password:'idcAdmin',exitStateAction:'OFFLINE_MODE',autoRejoinTries:'20',consistency:'BEFORE_ON_PRIMARY_FAILOVER',recoveryMethod:'clone'});
+cluster.addInstance('idcAdmin@10.0.0.21:3306',{password:'idcAdmin',exitStateAction:'OFFLINE_MODE',autoRejoinTries:'20',consistency:'BEFORE_ON_PRIMARY_FAILOVER',recoveryMethod:'clone'});
+cluster.status();
+--- end file ---
+
+--- createIDcDefault ---
+// dba.configureInstance('idcAdmin@10.0.0.17:3306',{password:'idcAdmin',interactive:false,restart:true});
+dba.configureInstance('idcAdmin@10.0.0.20:3306',{password:'idcAdmin',interactive:false,restart:true});
+dba.configureInstance('idcAdmin@10.0.0.21:3306',{password:'idcAdmin',interactive:false,restart:true});
+cluster=dba.createCluster("mycluster");
+cluster.addInstance('idcAdmin@10.0.0.20:3306',{password:'idcAdmin',recoveryMethod:'clone'});
+cluster.addInstance('idcAdmin@10.0.0.21:3306',{password:'idcAdmin',recoveryMethod:'clone'});
+cluster.status();
+--- end file ---
+
+ 

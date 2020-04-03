@@ -1,0 +1,9 @@
+dba.configureInstance('ted@clusternode2:3306',{password:'ted',interactive:false,restart:true});
+dba.configureInstance('ted@clusternode3:3306',{password:'ted',interactive:false,restart:true});
+cluster=dba.createCluster("mycluster",{exitStateAction:'OFFLINE_MODE',autoRejoinTries:'20',consistency:'BEFORE_ON_PRIMARY_FAILOVER'});
+cluster.addInstance('ted@clusternode2:3306',{password:'ted',exitStateAction:'OFFLINE_MODE',autoRejoinTries:'20',consistency:'BEFORE_ON_PRIMARY_FAILOVER',
+recoveryMethod:'clone'});
+cluster.addInstance('ted@clusternode3:3306',{password:'ted',exitStateAction:'OFFLINE_MODE',autoRejoinTries:'20',consistency:'BEFORE_ON_PRIMARY_FAILOVER',
+recoveryMethod:'clone'});
+cluster.status();
+

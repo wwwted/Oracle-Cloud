@@ -1,0 +1,8 @@
+. ./setenv
+(./refresh.sh)
+
+- mysqlsh -e "dba.configureInstance('ted@clusternode1:3306',{password:'ted',interactive:false,restart:true});"
+- mysqlsh ted:ted@clusternode1 < default-cluster
+
+If you want to re-create the cluster simply run ./refresh.sh on all 3 nodes and start over
+

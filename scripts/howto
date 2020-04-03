@@ -1,0 +1,43 @@
+#
+# Scipts for setting up demo/howto environments
+# create_servers_oci.sh    - creates OCI instance and starts MySQL server
+# status_servers_oci.sh    - show status of servers
+# stop_servers_oci.sh      - stop servers
+# terminate_servers_oci.sh - Delete servers
+# See examples below.
+#
+# Make sure to change below paramaters
+#
+# create_servers_oci.sh:
+# - pub_key="/home/ted/OCI/id_rsa.pub"
+# - priv_key="/home/ted/OCI/id_rsa"
+# - ad="YOiV:EU-FRANKFURT-1-AD-1"
+# - comp_id="ocid1.compartment.oc1..aaaaaaaadq36rajhvw6h7vc5wlzzzeja6w33tpo4bxo7yfh7axoe4gdxyn7a"
+# - shape="VM.Standard2.1" # Intel 2GHz, 2.1 - 2.24 avaialble
+# - image_id="ocid1.image.oc1.eu-frankfurt-1.aaaaaaaaqgwqmwsddnbjzbbfaxs36jd36puvxpme76xvt3kpbfnpkhbwdobq"
+# - nw_id="ocid1.subnet.oc1.eu-frankfurt-1.aaaaaaaanpn7kqifmlmfddxpierfaynuqsj5hnwaradpt3o3g6rgnyzp3fua"
+#
+# start_servers_oci.sh:
+# - priv_key="/home/ted/OCI/id_rsa"
+# 
+# Author: Ted
+# 
+
+Create new enironment, node will be named clusterNodes[1-3]:
+./create_servers_oci.sh cluster 3
+./status_servers_oci.sh cluster
+
+Run demo (from demos folder)
+
+Refresh (stop/start) environment:
+./stop_servers_oci.sh cluster
+./start_servers_oci.sh cluster
+./status_servers_oci.sh cluster
+
+Run demo (from demos folder)
+
+Terminate environment:
+./stop_servers_oci.sh cluster
+./terminate_servers_oci.sh cluster
+
+
