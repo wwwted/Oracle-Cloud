@@ -1,0 +1,7 @@
+export MYSQL_HOME=$PWD
+export PATH=${MYSQL_HOME}/mysql/bin:${MYSQL_HOME}/shell/bin:${MYSQL_HOME}/router/bin:$PATH
+
+[ ! -e ${MYSQL_HOME}/mysql/bin/mysql ] && echo "Can not find MySQL binaries, please create link mysql (${MYSQL_HOME}/mysql) to MySQL binaries" && return
+[ ! -e ${MYSQL_HOME}/router/bin/mysqlrouter ] && echo "Can not find Router binaries, please create link router (${MYSQL_HOME}/router) to Router binaries" && return
+[ ! -e ${MYSQL_HOME}/shell/bin/mysqlsh ] && echo "Can not find Shell binaries, please create link shell (${MYSQL_HOME}/shell) to Shell binaries" && return
+
