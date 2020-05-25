@@ -59,7 +59,7 @@ do
    i=`expr $i + 1`
 done
 
-mdkir -p /tmp/oci
+mkdir -p /tmp/oci
 echo $id_list > "/tmp/oci/${prefix}NodesStarted.ids"
 rm -f "/tmp/oci/${prefix}Nodes.txt"
 
