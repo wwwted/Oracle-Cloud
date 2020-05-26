@@ -33,8 +33,8 @@ nw_id="ocid1.subnet.oc1.eu-frankfurt-1.aaaaaaaanpn7kqifmlmfddxpierfaynuqsj5hnwar
 
 prefix=$1
 no_nodes=$2
-[ $# -ne 2 ] && echo "Wrong number of arguments, Usage: $0 <prefix for nodes> <no of nodes>" && exit
-[ -z "$prefix" ] && echo "You must add a prefix string, Usage: $0 <prefix for nodes> <no of nodes>" && exit
+[ $# -ne 2 ] && echo "Wrong number of arguments, Usage: $0 <prefix name for nodes> <no of nodes>" && exit
+[ -z "$prefix" ] && echo "You must add a prefix string, Usage: $0 <prefix name for nodes> <no of nodes>" && exit
 [[ $no_nodes -lt 0 || $no_nodes -gt 20 ]] && echo "Number of Nodes can only be 1-20" && exit
 
 i=1
