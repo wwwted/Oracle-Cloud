@@ -6,3 +6,13 @@
 
 If you want to re-create the cluster simply run ./refresh.sh on all 3 nodes and start over
 
+Start router:
+mysqlrouter --bootstrap ted:ted@clusternode1 --directory myrouter
+./myrouter/start.sh
+
+Connect to shell and look at connected router process
+mysqlsh (+ \connect ted:ted@clusternode1:3306)
+cluster=dba.get + tab
+cluster=dba.getCluster()
+cluster. + tab
+cluster.listRouters();
