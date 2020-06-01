@@ -6,6 +6,7 @@ MySQL Demos contain OCI scripts (in folder scripts, see howto for more details) 
 There are also some demos on how to setup and run InnoDB Cluster and InnoDB ReplicaSet on OCI in the demos folder.
 
 ### Manual instal of Kubernetes on OCI
+In the folder "kubernetes-install" there is a text file covering how to install and and setup k8s.
 
 ### Running MySQL on Kubernetes
 
