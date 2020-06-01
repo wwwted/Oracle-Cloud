@@ -1,0 +1,146 @@
+
+ Kubernetes Cluster
+====================
+
+Doc: https://www.linuxtechi.com/install-kubernetes-1-7-centos7-rhel7/
+Doc: https://kubernetes.io/docs/tasks/tools/install-kubectl/
+
+My environment
+--------------
+k8s-node1 (Master)
+- 130.61.114.226
+- 10.0.0.32
+
+k8s-node2 (Worker/Minion/Node)
+- 130.61.83.211
+- 10.0.0.34
+
+k8s-node3 (Worker/Minion/Node)
+- 130.61.118.138
+- 10.0.0.35
+
+## INSTALL k8s ##
+
+Install (on all nodes/server)
+- disable iptables, SElinux and firewalld (use my Linux template)
+- Setup k8s repo, look at note "kubernetes.repo" bellow
+- Add nodes in local hosts file, see note "host" bellow
+- Disable swap:
+  - runtime: sudo swapoff -a
+  - permant: sudo sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
+- Install Docker + k8s: sudo yum install kubeadm docker -y
+- Start and enable docker service:
+  - sudo systemctl enable docker 
+  - sudo systemctl start docker
+
+For a easier setup, create a custome OCI image file here to clone the workers (+ for future needs)
+
+* Note hosts:
+10.0.0.32 k8s-node1
+10.0.0.34 k8s-node2
+10.0.0.35 k8s-node3
+
+* Note "kubernetes.rep"
+Run as root (sudo su):
+cat <<EOF > /etc/yum.repos.d/kubernetes.repo
+[kubernetes]
+name=Kubernetes
+baseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64
+enabled=1
+gpgcheck=1
+repo_gpgcheck=1
+gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg
+       https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+/etc/yum.repos.d/kubernetes.repo
+EOF
+
+## Master (k8s-node1) ##
+- kubeadm init (generates conf /var/lib/kubelet/config.yaml)
+- sudo systemctl enable kubelet
+- sudo systemctl start kubelet
+
+Output from "sudo kubeadm init" command on master :
+To start using your cluster, you need to run the following as a regular user:
+  mkdir -p $HOME/.kube
+  sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+  sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+After this look at (as normal user, no sudo needed for kubectl cmds):
+kubectl get nodes
+kubectl get pods --all-namespaces
+
+You should now deploy a pod network to the cluster.
+Run "kubectl apply -f [podnetwork].yaml" with one of the options listed at:
+  https://kubernetes.io/docs/concepts/cluster-administration/addons/
+
+I tested the Weave Net (https://www.weave.works/docs/net/latest/kubernetes/kube-addon/)
+kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')"
+
+## Workers (node2/3) ##
+- kubeadm join (fetches conf from master and creates file /var/lib/kubelet/config.yaml), you need options from the kubeadmin init earler, see note 3) below.
+- sudo systemctl enable kubelet
+- sudo systemctl start kubelet
+
+Note 3) Output from "sudo kubeadm init" command on master :
+Then you can join any number of worker nodes by running the following on each as root:
+kubeadm join 10.0.0.32:6443 --token u6n85n.qtwdnu4fmvz3fgfp \
+    --discovery-token-ca-cert-hash sha256:d97c79121d2c82ac913ce81ba12ef873dc43dff61e81681f08dad6dd0b373b04 
+
+## DONE - the cluster is now up and running!!!
+It's okay to stop/start all OCP hosts, all will re-start and work as expected!!
+
+list nodes in cluster: kubectl get nodes -o wide
+List user pods: kubectl get pods -o wide
+List all pods: kubectl get pods --all-namespaces -o wide
+List all deplyments: kubectl get deployments
+Desc all deplyments: kubectl describe deployments
+
+## Login to master and create/start a small linux server for example ##
+kubectl run alpine3 -it --image=alpine sh
+kubectl get pods -o wide (options wide give some xtra info, for example NODE and IP)
+Execute a command: kubectl exec alpine3-cf88d76d-mwg4j ls
+Login to pod again kubectl exec -it alpine3-cf88d76d-mwg4j -- sh
+kubectl describe pod alpine3-cf88d76d-mwg4j
+
+Kill the specific pod: kubectl delete pod alpine3-cf88d76d-mwg4j
+Delete/remove a deployment: kubectl delete deployments alpine3
+Then look at: kubectl get deployments
+
+## Deploy a small webserver (nginx)
+kubectl run nginx1 --image=nginx
+kubectl describe pod nginx1-675bf6c9f-qmntf
+kubectl describe pod nginx1
+Fetch IP and try (from correct workder node): curl <ip>
+(should say <!DOCTYPE html> .... <h1>Welcome to nginx!</h1> ....)
+
+## Access via Docker
+If you login to the specific NODE where the pod is runing you can access it via nornal docker commands like:
+sudo docker ps
+sudo docker exec -it 3c1994306662 ls
+sudo docker exec -it 3c1994306662 hostname
+
+## k8s basics
+3 main classes: Pod, Deployment or Service, only Deployment and Services are really used.
+
+Creating yaml files: Start with a sample file and change it as needed, the documentation
+has plenty of samples: http://kubernetes.io
+
+Read:
+- https://kubernetes.io/docs/concepts/
+- https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
+- https://kubernetes.io/docs/tutorials/stateful-application/cassandra/
+
+- Prometheus:
+  - https://scalegrid.io/blog/how-to-monitor-mysql-deployments-with-prometheus-and-grafana-at-scalegrid/
+  - https://github.com/braedon/prometheus-mysql-exporter
+
+Running InnoDB Cluster on OpenShift:
+- Look at https://confluence.oraclecorp.com/confluence/display/MYSQL/MySQL+InnoDB+Cluster+on+Openshift
+
+StatefullSet and much more look at github repo and videos by "Just me and Opensource"
+- https://www.youtube.com/channel/UC6VkhPuCCwR_kG0GExjoozg
+- https://www.youtube.com/watch?v=r_ZEpPTCcPE
+- https://github.com/justmeandopensource
+  K8s:
+  - https://www.youtube.com/watch?v=YzaYqxW0wGs&list=PL34sAs7_26wNBRWM6BDhnonoA5FMERax0
+
