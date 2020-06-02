@@ -148,6 +148,4 @@ sudo rm -fr /var/nfs/pv[0,1,2]/*
 ls /var/nfs/pv[0,1,2]/
 ```
 
-manual restart needed as docker image have not started mysqld via mysqld_safe or via services
-103
 Whenever deploying new stuff look at: watch kubectl get all -o wide
