@@ -1,0 +1,48 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-nfs-pv0
+  labels:
+    type: local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteOnce
+  nfs:
+    server: 10.0.0.50
+    path: "/var/nfs/pv0"
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-nfs-pv1
+  labels:
+    type: local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteOnce
+  nfs:
+    server: 10.0.0.50
+    path: "/var/nfs/pv1"
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-nfs-pv2
+  labels:
+    type: local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteOnce
+  nfs:
+    server: 10.0.0.50
+    path: "/var/nfs/pv2"
+

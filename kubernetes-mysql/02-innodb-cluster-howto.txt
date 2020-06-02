@@ -1,0 +1,96 @@
+ InnoDB Cluster
+================
+
+Setup a NFS Server for your persistent volumes, howto here: https://github.com/wwwted/Oracle-Cloud/blob/master/nfs.md
+If you are using a public cloud provider you can most likely use dynamic storage options for PV and PVC.
+
+In bellow examples I have a NFS Server on IP: 10.0.0.50
+This NFS exposes folders:
+- /var/nfs/pv0
+- /var/nfs/pv1
+- /var/nfs/pv2
+
+
+1) Create PV:
+kubectl create -f yamls/02-mysql-pv.yaml
+kubectl get pv (short for kubectl get persistentvolumes)
+               (should be in STATUS Available)
+
+2) Create unique namespace for the cluster:
+kubectl create namespace mysql-cluster
+(namespaces in k8s are like comparments in OCI, lets create a unique namespace for our cluster)
+kubectl get namespaces
+Set default namespace for comming commands to mysql-cluster:
+kubectl config set-context --current --namespace=mysql-cluster
+
+3) Start the servers using StatefulSets:
+kubectl create  -f  yamls/02-mysql-innodb-cluster-manual.yaml
+
+Look at:
+kubectl get pv,pvc
+watch kubectl get all -o wide
+(or kubectl get all -o wide -n mysql-cluster)
+(or kubectl get all -o wide --all-namespaces)
+
+If there are problems look at logs (mysqld is started direcly + error log is set to stderr in our docker image): 
+- kubectl logs mysql-innodb-cluster-0
+  (or prev pods by: kubectl logs -p mysql-innodb-cluster-1)
+- kubectl describe pod mysql-innodb-cluster-1
+
+Login to MySQL:
+kubectl exec -it  mysql-innodb-cluster-0 -- mysql -uroot -p_MySQL2020_
+kubectl exec -it  mysql-innodb-cluster-0 -- mysqlsh -uroot -p_MySQL2020_ -S/var/run/mysqld/mysqlx.sock
+
+2.1 Create InnoDB Cluster
+
+2.1.1) Create user for InnoDB Cluster on all nodes:
+kubectl exec -it  mysql-innodb-cluster-0 -- mysql -uroot -p_MySQL2020_ -e"SET SQL_LOG_BIN=0; CREATE USER 'idcAdmin'@'%' IDENTIFIED BY 'idcAdmin'; GRANT ALL ON *.* TO 'idcAdmin'@'%' WI
+TH GRANT OPTION";
+kubectl exec -it  mysql-innodb-cluster-1 -- mysql -uroot -p_MySQL2020_ -e"SET SQL_LOG_BIN=0; CREATE USER 'idcAdmin'@'%' IDENTIFIED BY 'idcAdmin'; GRANT ALL ON *.* TO 'idcAdmin'@'%' WI
+TH GRANT OPTION";
+kubectl exec -it  mysql-innodb-cluster-2 -- mysql -uroot -p_MySQL2020_ -e"SET SQL_LOG_BIN=0; CREATE USER 'idcAdmin'@'%' IDENTIFIED BY 'idcAdmin'; GRANT ALL ON *.* TO 'idcAdmin'@'%' WI
+TH GRANT OPTION";
+
+2.1.2) Create your cluster using shell from one of the pods (mysql-innodb-cluster-0):
+Login to shell:
+kubectl exec -it  mysql-innodb-cluster-0 -- mysqlsh -uidcAdmin -pidcAdmin -S/var/run/mysqld/mysqlx.sock
++
+dba.configureInstance('idcAdmin@mysql-innodb-cluster-0:3306',{password:'idcAdmin',interactive:false,restart:true});
+dba.configureInstance('idcAdmin@mysql-innodb-cluster-1:3306',{password:'idcAdmin',interactive:false,restart:true});
+dba.configureInstance('idcAdmin@mysql-innodb-cluster-2:3306',{password:'idcAdmin',interactive:false,restart:true});
+manual restart needed as docker image have not started mysqld via mysqld_safe or via services
+
+You see error below when running "dba.configureInstance"
+ERROR: Remote restart of MySQL server failed: MySQL Error 3707 (HY000): Restart server failed (mysqld is not managed by supervisor process).
+This is due some limitation running "restart" command in MySQL for our docker container, we are working on solving this.
+Please restart MySQL manually to enable new settings, easiest to scale down + scale up again like:
+
+kubectl scale statefulset --replicas=0 mysql-innodb-cluster
++ look at: watch kubectl get all -o wide +
+kubectl scale statefulset --replicas=3 mysql-innodb-cluster
+
+Login to shell again:
+kubectl exec -it  mysql-innodb-cluster-0 -- mysqlsh -uidcAdmin -pidcAdmin -S/var/run/mysqld/mysqlx.sock
++
+cluster=dba.createCluster("mycluster",{exitStateAction:'OFFLINE_MODE',autoRejoinTries:'20',consistency:'BEFORE_ON_PRIMARY_FAILOVER'});
+cluster.status()
+cluster.addInstance('idcAdmin@mysql-innodb-cluster-1:3306',{password:'idcAdmin',recoveryMethod:'clone'});
+cluster.addInstance('idcAdmin@mysql-innodb-cluster-2:3306',{password:'idcAdmin',recoveryMethod:'clone'});
+cluster.status()
+
+DONE!!!
+
+Clean-up:
+kubectl delete -f yamls/02-mysql-innodb-cluster-manual.yaml
+kubectl delete pvc mysql-persistent-storage-mysql-innodb-cluster-0
+kubectl delete pvc mysql-persistent-storage-mysql-innodb-cluster-1
+kubectl delete pvc mysql-persistent-storage-mysql-innodb-cluster-2
+kubectl delete -f yamls/02-mysql-pv.yaml
+Make sure all is deleted:
+kubectl get pv,pv
+kubectl get all -o wide
+Remember to also empty out the datadir on NFS between tests:
+- sudo rm -fr /var/nfs/pv[0,1,2]/*
+- ls /var/nfs/pv[0,1,2]/
+
+Whenever deploying new stuff look at: watch kubectl get all -o wide
