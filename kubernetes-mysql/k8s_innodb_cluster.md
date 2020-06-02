@@ -1,6 +1,7 @@
 # InnoDB Cluster on Kubernetes using StatefulSets
 
 In this demo we are setting up InnDB Cluster on Kubernetes, we will use a StatefulSets and NFS as storage.
+This demo was created on Oracle Cloud (OCI) but vanilla Kubernetes and NFS was used so should work for any cloud or on-prem.
 
 
 ## Setup NFS Server to act as your persistent volume.
