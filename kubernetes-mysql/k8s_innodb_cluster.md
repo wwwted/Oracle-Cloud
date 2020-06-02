@@ -132,6 +132,26 @@ cluster.status()
 ```
 Done, you should now have a running InnoDB Cluster using statefulSets on Kubernetes.
 
+##### Simulate an failure
+Look at cluster status, login to mysql shell:
+```
+kubectl exec -it  mysql-innodb-cluster-1 -- mysqlsh -uidcAdmin -pidcAdmin -S/var/run/mysqld/mysqlx.sock
+```
+And look at cluster status:
+```
+cluster=dba.getCluster()
+cluster.status()
+
+``` 
+Also look at pods ``` watch kubectl get all -o wide -n mysql-cluster``` 
+
+Kill the pod that is primary (RW) (mysql-innodb-cluster-0 most likely)
+```
+kubectl delete pod mysql-innodb-cluster-0
+```
+You should now see that one pod is restarted and that the "old" primary (RW) will join after restart as seconday (RO).
+
+
 ## If you want to remove everything
 ```
 kubectl delete -f yamls/02-mysql-innodb-cluster-manual.yaml
