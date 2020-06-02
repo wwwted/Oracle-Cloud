@@ -149,5 +149,7 @@ Remember to also empty out the datadir on NFS between tests:
 sudo rm -fr /var/nfs/pv[0,1,2]/*
 ls /var/nfs/pv[0,1,2]/
 ```
+## Extras
+More information around InnoDB Cluster [here](https://github.com/wwwted/MySQL-InnoDB-Cluster-3VM-Setup)
 
 Whenever deploying new stuff look at: watch kubectl get all -o wide
