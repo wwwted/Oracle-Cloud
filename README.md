@@ -9,5 +9,5 @@ There are also some demos on how to setup and run InnoDB Cluster and InnoDB Repl
 In the folder "kubernetes-install" there is a text [file](https://github.com/wwwted/Oracle-Cloud/blob/master/kubernetes-install/K8s-Howto.txt) covering how to install and and setup k8s.
 
 ### Running MySQL on Kubernetes
-- [MySQL using deployment with persitant volumes](https://github.com/wwwted/Oracle-Cloud/blob/master/k8s_mysql.txt)
-- [InnoDB CLuster setup using StatefulSets](https://github.com/wwwted/Oracle-Cloud/blob/master/k8s_innodb_cluster.txt)
+- [MySQL using deployment with persitant volumes](https://github.com/wwwted/Oracle-Cloud/blob/master/k8s_mysql.md)
+- [InnoDB Cluster using StatefulSets](https://github.com/wwwted/Oracle-Cloud/blob/master/k8s_innodb_cluster.md)
