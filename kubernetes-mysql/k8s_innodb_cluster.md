@@ -1,6 +1,6 @@
 # InnoDB Cluster on Kubernetes using StatefulSets
 
-## Setup NFS Server to act as your persistant volume.
+## Setup NFS Server to act as your persistent volume.
 Setup a NFS Server for your persistent volumes, howto [here](https://github.com/wwwted/Oracle-Cloud/blob/master/nfs.md)
 If you are using a public cloud provider you can most likely use dynamic storage options for handling of PV.
 
