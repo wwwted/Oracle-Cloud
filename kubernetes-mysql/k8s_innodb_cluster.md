@@ -22,7 +22,7 @@ We are specifying that this volume can only be accessed by one node (ReadWriteOn
 We are also specifying that we will use our NFS server for storage.
 More information on PV [here](https://kubernetes.io/docs/concepts/storage/persistent-volumes/).
 
-After we have created the persistent volumes we will create the StatefulSet [deployment](https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/). 
+After we have created the persistent volumes we will create the [StatefulSet](https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/). 
 StatefulSets is a way in Kubernetes to manage stateful applications
 First we create [services](https://kubernetes.io/docs/concepts/services-networking/service/) for our cluster nodes to expose them on the network.
 Next we configure our StatefulSet, we want to have three replicas (three InnoDB Cluster nodes) that we are starting in parallel.
