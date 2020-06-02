@@ -24,7 +24,8 @@ Edit /etc/exports, insert line (make /nfs available from all nodes in my NW):
 /srv/nfs/kubedata            *(rw,sync,no_subtree_check,insecure,no_root_squash)
 ```
 (no_root_squash - important as MySQL docker image what to run CHOWN)
- + run: ```sudo exportfs -a```
+
+And run: ```sudo exportfs -a```
 
 Look at: ```showmount -e```
 
