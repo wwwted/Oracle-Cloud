@@ -132,7 +132,7 @@ cluster.status()
 ```
 Done, you should now have a running InnoDB Cluster using statefulSets on Kubernetes.
 
-##### Simulate an failure
+##### Simulate a failure
 Look at cluster status, login to mysql shell:
 ```
 kubectl exec -it  mysql-innodb-cluster-1 -- mysqlsh -uidcAdmin -pidcAdmin -S/var/run/mysqld/mysqlx.sock
