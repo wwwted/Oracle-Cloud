@@ -12,9 +12,15 @@ The NFS exposes folder:
 
 ## Kubernetes configuration
 You can look at configuration for kubernetes in yamls folder.
-We are creating a PV that can only be accessed by one node (ReadWriteOnce)
+
+First we are creating a persistent volume and a persistant volume clame.
+We are specifying that this volume can only be accessed by one node (ReadWriteOnce)
 We are also specifying that we will use our NFS server for storage.
 More information on PV [here](https://kubernetes.io/docs/concepts/storage/persistent-volumes/).
+
+After we have created the persistent volume we will create the MySQL deployment.
+First we create a service to expose our application on the network.
+Next we create the MySQL deployment using the resourses created earlier.
 
 1) Create a persisten volume (PV):
 ```
@@ -25,6 +31,8 @@ kubectl create -f yamls/01-mysql-pv.yaml
 ```
 kubectl create -f yamls/01-mysql-deployment.yaml
 ```
+
+Done!
 
 ## If you want to remove everything:
 kubectl delete -f yamls/01-mysql-deployment.yaml 
