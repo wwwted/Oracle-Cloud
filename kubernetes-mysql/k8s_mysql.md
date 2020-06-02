@@ -11,7 +11,7 @@ The NFS exposes folder:
 - /var/nfs/pv099
 
 ## Kubernetes configuration
-You can look at configuration for kubernetes in yamls folder.
+You can look at configuration for kubernetes in [yamls](https://github.com/wwwted/Oracle-Cloud/tree/master/kubernetes-mysql/yamls) folder.
 
 First we are creating a persistent volume and a persistant volume clame.
 We are specifying that this volume can only be accessed by one node (ReadWriteOnce)
