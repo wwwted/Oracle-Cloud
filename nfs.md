@@ -37,5 +37,6 @@ sudo mkdir -p /mnt/nfs
 mount 10.0.0.50:/var/nfs /mnt/nfs
 ```
 or
-```mount -t nfs 10.0.0.50:/var/nfs /mnt/nfs``
+```mount -t nfs 10.0.0.50:/var/nfs /mnt/nfs```
+
 To remove mount: ```sudo umount /mnt/nfs```
