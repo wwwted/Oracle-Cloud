@@ -35,12 +35,16 @@ kubectl create -f yamls/01-mysql-deployment.yaml
 Done!
 
 ## If you want to remove everything:
+```
 kubectl delete -f yamls/01-mysql-deployment.yaml 
 kubectl delete -f yamls/01-mysql-pv.yaml
 Make sure everything is deleted:
 kubectl get pv,pv
 kubectl get all -o wide
+```
 
 Remember to also empty out the datadir on NFS between tests:
-- sudo rm -fr /var/nfs/pv099/*
-- ls /var/nfs/pv099/
+```
+sudo rm -fr /var/nfs/pv099/*
+ls /var/nfs/pv099/
+```
