@@ -4,7 +4,7 @@ In this demo we are setting up one MySQL Server using k8s, we will use a deploym
 
 ## Persistent volumes
 Setup a NFS Server for your persistent volumes, howto [here](https://github.com/wwwted/Oracle-Cloud/blob/master/nfs.md)
-If you are using a public cloud provider you can most likely use dynamic storage options for PV and PVC.
+If you are using a public cloud provider you can most likely use dynamic storage options for handling of PV.
 
 In bellow examples I have a NFS Server on IP: 10.0.0.50
 The NFS exposes folder:
