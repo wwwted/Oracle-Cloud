@@ -65,7 +65,7 @@ kubectl logs mysql-innodb-cluster-0
 ```
 or prev failed pods by running:
 ```
-kubectl logs -p mysql-innodb-cluster-1)
+kubectl logs -p mysql-innodb-cluster-1
 ```
 Look at configuration for the pod:
 ```
