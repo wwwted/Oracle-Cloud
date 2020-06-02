@@ -8,7 +8,7 @@ This demo was created on Oracle Cloud (OCI) but vanilla Kubernetes and NFS was u
 Setup a NFS Server for your persistent volumes, howto [here](https://github.com/wwwted/Oracle-Cloud/blob/master/nfs.md)
 If you are using a public cloud provider you can most likely use dynamic storage options for handling of PV.
 
-In bellow examples I have a NFS Server on IP: 10.0.0.50
+In bellow example I have a NFS Server on IP: 10.0.0.50
 This NFS exposes folders:
 - /var/nfs/pv0
 - /var/nfs/pv1
