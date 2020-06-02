@@ -25,14 +25,16 @@ Edit /etc/exports, insert line (make /nfs available from all nodes in my NW):
 ```
 (no_root_squash - important as MySQL docker image what to run CHOWN)
  + run: ```sudo exportfs -a```
+
 Look at: ```showmount -e```
 
 Done!!
 
 ### To access NFS mounts from client hosts:
+```
 sudo mkdir -p /mnt/nfs
 mount 10.0.0.50:/var/nfs /mnt/nfs
+```
 or
-mount -t nfs 10.0.0.50:/var/nfs /mnt/nfs
-... do whatever ...
-To remove mount: sudo umount /mnt/nfs
+```mount -t nfs 10.0.0.50:/var/nfs /mnt/nfs``
+To remove mount: ```sudo umount /mnt/nfs```
