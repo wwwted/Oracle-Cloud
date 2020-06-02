@@ -119,8 +119,7 @@ kubectl scale statefulset --replicas=3 mysql-innodb-cluster
 
 Login to shell again:
 ```
-kubectl exec -it  mysql-innodb-cluster-0 -- mysqlsh -uidcAdmin -piIf you want to remove everything:
-dcAdmin -S/var/run/mysqld/mysqlx.sock
+kubectl exec -it  mysql-innodb-cluster-0 -- mysqlsh -uidcAdmin -pidcAdmin -S/var/run/mysqld/mysqlx.sock
 ```
 and run:
 ```
