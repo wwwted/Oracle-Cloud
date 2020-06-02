@@ -18,8 +18,8 @@ We are specifying that this volume can only be accessed by one node (ReadWriteOn
 We are also specifying that we will use our NFS server for storage.
 More information on PV [here](https://kubernetes.io/docs/concepts/storage/persistent-volumes/).
 
-After we have created the persistent volume we will create the MySQL deployment.
-First we create a service to expose our application on the network.
+After we have created the persistent volume we will create the MySQL [deployment](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/).
+First we create a [service](https://kubernetes.io/docs/concepts/services-networking/service/) to expose our application on the network.
 Next we create the MySQL deployment using the resourses created earlier.
 
 1) Create a persisten volume (PV):
