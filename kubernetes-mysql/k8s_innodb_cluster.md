@@ -108,7 +108,7 @@ You see error below when running "dba.configureInstance"
 ERROR: Remote restart of MySQL server failed: MySQL Error 3707 (HY000): Restart server failed (mysqld is not managed by supervisor proc
 ess).
 
-This is due some limitation running "restart" command in MySQL for our docker container, we are working on solving this.
+This is due some limitation running "restart" comand in MySQL for our docker container, we are working on solving this.
 Please restart MySQL manually to enable new settings, easiest to scale down + scale up again like:
 ```
 kubectl scale statefulset --replicas=0 mysql-innodb-cluster
@@ -130,7 +130,7 @@ cluster.addInstance('idcAdmin@mysql-innodb-cluster-1:3306',{password:'idcAdmin',
 cluster.addInstance('idcAdmin@mysql-innodb-cluster-2:3306',{password:'idcAdmin',recoveryMethod:'clone'});
 cluster.status()
 ```
-Done, you should now have a running InnoDB Cluster using statefulSets on Kubernetes.
+Done, you should now have a running InnoDB Cluster using StatefulSets on Kubernetes.
 
 ##### Simulate a failure
 Look at cluster status, login to mysql shell:
