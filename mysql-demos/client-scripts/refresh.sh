@@ -14,7 +14,11 @@ mkdir $MYSQL_HOME/mysqldata
 mysqld --initialize-insecure --datadir=$MYSQL_HOME/mysqldata --basedir=$MYSQL_HOME/mysql
 mysqld_safe --defaults-file=$MYSQL_HOME/my.cnf --ledir=$MYSQL_HOME/mysql/bin &
 
-sleep 5
+while [ ! -S /tmp/mysql.sock ]
+do
+  echo "Waiting for MySQL to start..."
+  sleep 2 
+done
 
 mysql -uroot -e"SET SQL_LOG_BIN=0; CREATE USER 'ted'@'%' IDENTIFIED BY 'ted'; GRANT ALL ON *.* TO 'ted'@'%' WITH GRANT OPTION";
 pgrep mysql
