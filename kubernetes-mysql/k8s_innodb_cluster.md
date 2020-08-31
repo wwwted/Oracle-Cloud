@@ -1,13 +1,14 @@
 # InnoDB Cluster on Kubernetes using StatefulSets
 
 In this demo we are setting up InnDB Cluster on Kubernetes, we will use a StatefulSets and NFS as storage.
+This demo was created on Oracle Cloud (OCI) but vanilla Kubernetes and NFS was used so should work for any cloud or on-prem.
 
 
 ## Setup NFS Server to act as your persistent volume.
 Setup a NFS Server for your persistent volumes, howto [here](https://github.com/wwwted/Oracle-Cloud/blob/master/nfs.md)
 If you are using a public cloud provider you can most likely use dynamic storage options for handling of PV.
 
-In bellow examples I have a NFS Server on IP: 10.0.0.50
+In bellow example I have a NFS Server on IP: 10.0.0.50
 This NFS exposes folders:
 - /var/nfs/pv0
 - /var/nfs/pv1
@@ -21,8 +22,8 @@ We are specifying that this volume can only be accessed by one node (ReadWriteOn
 We are also specifying that we will use our NFS server for storage.
 More information on PV [here](https://kubernetes.io/docs/concepts/storage/persistent-volumes/).
 
-After we have created the persistent volumes we will create the StatefulSet [deployment]https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/). 
-StatefulSets are is a way in Kubernetes to manage stateful applications
+After we have created the persistent volumes we will create the [StatefulSet](https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/). 
+StatefulSets is a way in Kubernetes to manage stateful applications
 First we create [services](https://kubernetes.io/docs/concepts/services-networking/service/) for our cluster nodes to expose them on the network.
 Next we configure our StatefulSet, we want to have three replicas (three InnoDB Cluster nodes) that we are starting in parallel.
 We also use the simplified way by defining a volume claim template ([volumeClaimTemplates](https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/)) that will claim the three previously created volumes.
@@ -64,7 +65,7 @@ kubectl logs mysql-innodb-cluster-0
 ```
 or prev failed pods by running:
 ```
-kubectl logs -p mysql-innodb-cluster-1)
+kubectl logs -p mysql-innodb-cluster-1
 ```
 Look at configuration for the pod:
 ```
@@ -107,7 +108,7 @@ You see error below when running "dba.configureInstance"
 ERROR: Remote restart of MySQL server failed: MySQL Error 3707 (HY000): Restart server failed (mysqld is not managed by supervisor proc
 ess).
 
-This is due some limitation running "restart" command in MySQL for our docker container, we are working on solving this.
+This is due some limitation running "restart" comand in MySQL for our docker container, we are working on solving this.
 Please restart MySQL manually to enable new settings, easiest to scale down + scale up again like:
 ```
 kubectl scale statefulset --replicas=0 mysql-innodb-cluster
@@ -129,7 +130,27 @@ cluster.addInstance('idcAdmin@mysql-innodb-cluster-1:3306',{password:'idcAdmin',
 cluster.addInstance('idcAdmin@mysql-innodb-cluster-2:3306',{password:'idcAdmin',recoveryMethod:'clone'});
 cluster.status()
 ```
-Done, you should now have a running InnoDB Cluster using statefulSets on Kubernetes.
+Done, you should now have a running InnoDB Cluster using StatefulSets on Kubernetes.
+
+##### Simulate a failure
+Look at cluster status, login to mysql shell:
+```
+kubectl exec -it  mysql-innodb-cluster-1 -- mysqlsh -uidcAdmin -pidcAdmin -S/var/run/mysqld/mysqlx.sock
+```
+And look at cluster status:
+```
+cluster=dba.getCluster()
+cluster.status()
+
+``` 
+Also look at pods ``` watch kubectl get all -o wide -n mysql-cluster``` 
+
+Kill the pod that is primary (RW) (mysql-innodb-cluster-0 most likely)
+```
+kubectl delete pod mysql-innodb-cluster-0
+```
+You should now see that one pod is restarted and that the "old" primary (RW) will join after restart as seconday (RO).
+
 
 ## If you want to remove everything
 ```
