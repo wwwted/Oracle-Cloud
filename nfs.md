@@ -20,7 +20,7 @@ sudo chmod 777 /srv/nfs/kubedata
 
 Edit /etc/exports, insert line (make /nfs available from all nodes in my NW):
 ```
-/var/nfs           10.0.0.0/24(rw,sync,no_subtree_check,insecure,no_root_squash)
+/var/nfs                     *(rw,sync,no_subtree_check,insecure,no_root_squash)
 /srv/nfs/kubedata            *(rw,sync,no_subtree_check,insecure,no_root_squash)
 ```
 (no_root_squash - important as MySQL docker image what to run CHOWN)
