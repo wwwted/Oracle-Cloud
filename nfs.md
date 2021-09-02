@@ -15,7 +15,7 @@ sudo systemctl status nfs-server
 ### Exporting paths on the NFS Server
 ```
 sudo mkdir /var/nfs
-sudo mkdir /srv/nfs/kubedata
+sudo mkdir -p /srv/nfs/kubedata
 sudo chown nfsnobody:nfsnobody /var/nfs
 sudo chown nfsnobody:nfsnobody /srv/nfs/kubedata
 sudo chmod 777 /var/nfs
