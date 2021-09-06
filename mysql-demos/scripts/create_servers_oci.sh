@@ -26,10 +26,12 @@ shape="VM.Standard2.1" # Intel 2GHz, 2.1 - 2.24 avaialble
 pub_key="/home/ted/OCI/id_rsa.pub"
 priv_key="/home/ted/OCI/id_rsa"
 #image_id="ocid1.image.oc1.eu-frankfurt-1.aaaaaaaaj5gzerswfvzsv4wrwngejgujbyiu7kzgclzhftsx6w4grjxfad4q"
-image_id="ocid1.image.oc1.eu-frankfurt-1.aaaaaaaaqgwqmwsddnbjzbbfaxs36jd36puvxpme76xvt3kpbfnpkhbwdobq"
-      # My latest MySQL8NodeTemplate202004....
+#image_id="ocid1.image.oc1.eu-frankfurt-1.aaaaaaaaqgwqmwsddnbjzbbfaxs36jd36puvxpme76xvt3kpbfnpkhbwdobq"
+image_id="ocid1.image.oc1.eu-frankfurt-1.aaaaaaaaljp2c6ztgwetx6ekwpmzteyiz44roj33vxd3wlxmnwo3yv7k723q"
+
 nw_id="ocid1.subnet.oc1.eu-frankfurt-1.aaaaaaaanpn7kqifmlmfddxpierfaynuqsj5hnwaradpt3o3g6rgnyzp3fua"
       # OpenNW, subnet of NWwDNS
+
 
 prefix=$1
 no_nodes=$2
